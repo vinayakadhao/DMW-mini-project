@@ -13,7 +13,10 @@ render_page_header("Personalized Song Recommendations (kNN)", "Find tracks simil
 
 # ---------- Load dataset ----------
 import os
-DATA_PATH = os.path.join(os.path.dirname(__file__), "dataset.csv")
+from utils.data_loader import load_data
+
+# Get the dataset path relative to the main app folder
+DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dataset.csv")
 
 
 @st.cache_data(show_spinner=False)
