@@ -38,8 +38,18 @@ if not numeric_cols:
     st.error("No numeric features found in dataset for similarity computation.")
     st.stop()
 
-scaler = StandardScaler()
-scaled_features = scaler.fit_transform(df[numeric_cols])
+@st.cache_resource(show_spinner=False)
+def get_knn_artifacts(df_sig_cols, df_vals):
+    scaler_local = StandardScaler()
+    features32 = df_vals.astype("float32", copy=False)
+    scaled_local = scaler_local.fit_transform(features32)
+    model_local = NearestNeighbors(metric="cosine", algorithm="brute")
+    model_local.fit(scaled_local)
+    return scaler_local, scaled_local, model_local
+
+# Build a lightweight signature to invalidate cache when data changes materially
+df_signature = (tuple(numeric_cols), float(df[numeric_cols].sum(numeric_only=True).sum()))
+scaler, scaled_features, model = get_knn_artifacts(df_signature, df[numeric_cols].values)
 
 # ---------- kNN Recommendation ----------
 st.markdown("### Configure Recommendation Settings")
@@ -58,8 +68,7 @@ if len(centroid_choices) > num_centroids:
     st.warning("You selected more songs than the chosen centroid count; only the first N will be used.")
     centroid_choices = centroid_choices[:num_centroids]
 
-model = NearestNeighbors(metric="cosine", algorithm="brute")
-model.fit(scaled_features)
+# model already built via cache
 
 recommendations = []
 
@@ -118,3 +127,4 @@ if not rec_df.empty:
         mime="text/csv",
     )
 footer("Pro tip: Tweak number of recommendations to broaden or focus results.")
+
