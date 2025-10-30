@@ -38,8 +38,15 @@ if not numeric_cols:
     st.error("No numeric features found for clustering.")
     st.stop()
 
-scaler = StandardScaler()
-scaled_features = scaler.fit_transform(df[numeric_cols])
+@st.cache_resource(show_spinner=False)
+def get_scaled_features(df_sig_cols, df_vals):
+    scaler_local = StandardScaler()
+    features32 = df_vals.astype("float32", copy=False)
+    scaled_local = scaler_local.fit_transform(features32)
+    return scaler_local, scaled_local
+
+df_signature = (tuple(numeric_cols), float(df[numeric_cols].sum(numeric_only=True).sum()))
+scaler, scaled_features = get_scaled_features(df_signature, df[numeric_cols].values)
 
 # ---------- Playlist Clustering ----------
 st.markdown("### Configure Playlist Creation Settings")
@@ -47,8 +54,14 @@ max_clusters = max(1, min(50, max(1, len(curated_df) - 1)))
 num_clusters = st.slider("Number of playlists (clusters)", min_value=1, max_value=max_clusters, value=min(3, max_clusters), step=1)
 playlist_size = st.slider("Playlist size per cluster", min_value=10, max_value=50, value=10, step=1)
 
-kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init=10)
-df["cluster"] = kmeans.fit_predict(scaled_features)
+@st.cache_resource(show_spinner=False)
+def fit_kmeans(sig, n_clusters):
+    km = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+    labels = km.fit_predict(sig)
+    return km, labels
+
+_, labels = fit_kmeans(scaled_features, num_clusters)
+df["cluster"] = labels
 
 # Assign curated songs to clusters
 cluster_assignments = []
