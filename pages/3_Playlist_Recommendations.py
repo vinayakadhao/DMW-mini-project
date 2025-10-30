@@ -13,7 +13,8 @@ inject_global_css()
 render_page_header("Playlist Recommendation using K-Means Clustering", "Group songs with similar audio profiles into playlists.", "🎶")
 
 # ---------- Load dataset ----------
-DATA_PATH = r"C:\Users\vinay\OneDrive\Desktop\DMW mini project\dataset.csv"
+import os
+DATA_PATH = os.path.join(os.path.dirname(__file__), "dataset.csv")
 
 @st.cache_data(show_spinner=False)
 def load_prepared_data(path):
