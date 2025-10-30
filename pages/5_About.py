@@ -84,7 +84,7 @@ with card():
     1. **User selects favorite songs or artists** (via Preferences page).  
     2. **System generates recommendations** using:
        - *KNN Algorithm* → for similar track recommendations  
-    3. **K-Means Clustering** forms **playlists** with songs of similar audio profiles.  
+    3. **K-Means Clusterring** forms **playlists** with songs of similar audio profiles.  
     4. **Dashboard** visualizes insights such as top artists, genres, and popularity trends.  
     """)
 
