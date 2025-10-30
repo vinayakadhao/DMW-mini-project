@@ -27,7 +27,13 @@ with card():
     """)
 
 # ---- LOAD DATA ----
-df = load_data(r"C:\Users\vinay\OneDrive\Desktop\DMW mini project\dataset.csv")
+import os
+from utils.data_loader import load_data
+
+# Use relative path — works both locally and on Streamlit Cloud
+dataset_path = os.path.join(os.path.dirname(__file__), "dataset.csv")
+df = load_data(dataset_path)
+
 df = preprocess_artists(df)
 
 # ---- TOP INSIGHTS ----
