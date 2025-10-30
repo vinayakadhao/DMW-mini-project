@@ -38,7 +38,5 @@ def preprocess_artists(df):
             df['popularity'] = df[feature_cols].mean(axis=1)
         else:
             df['popularity'] = 50.0
-    # Construct text blob safely
-    track_genre_series = df['track_genre'] if 'track_genre' in df.columns else ''
-    df['text_blob'] = df['track_name'].astype(str) + " " + df['artists'].astype(str) + " " + track_genre_series.astype(str)
+    # Skip building large text blobs to reduce preprocessing time
     return df
