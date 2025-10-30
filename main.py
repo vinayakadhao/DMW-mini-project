@@ -27,7 +27,12 @@ with card():
     """)
 
 # ---- LOAD DATA ----
-df = load_data(r"C:\Users\vinay\OneDrive\Desktop\DMW mini project\dataset.csv")
+import os
+from utils.data_loader import load_data
+
+# Automatically use dataset in same folder as main.py
+DATA_PATH = os.path.join(os.path.dirname(__file__), "dataset.csv")
+df = load_data(DATA_PATH)
 df = preprocess_artists(df)
 
 # ---- TOP INSIGHTS (Top 10 only, no expanders) ----
