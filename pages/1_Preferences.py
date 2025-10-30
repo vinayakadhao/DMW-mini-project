@@ -14,7 +14,9 @@ render_page_header(
 )
 
 # ---------- Load data ----------
-DATA_PATH = r"C:\Users\vinay\OneDrive\Desktop\DMW mini project\dataset.csv"
+import os
+DATA_PATH = os.path.join(os.path.dirname(__file__), "dataset.csv")
+
 
 @st.cache_data(show_spinner=False)
 def load_and_prep(path):
