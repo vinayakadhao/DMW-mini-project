@@ -1,4 +1,3 @@
-# pages/1_Preferences.py
 import streamlit as st
 import pandas as pd
 from utils.data_loader import load_data, preprocess_artists
@@ -13,11 +12,9 @@ render_page_header(
     emoji="🛠️",
 )
 
-# ---------- Load data ----------
 import os
 from utils.data_loader import load_data
 
-# Get the dataset path relative to the main app folder
 DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dataset.csv")
 
 
@@ -29,9 +26,8 @@ def load_and_prep(path):
 
 df = load_and_prep(DATA_PATH)
 
-# ---------- Session state for curated list ----------
 if "curated_list" not in st.session_state:
-    st.session_state.curated_list = []  # will hold dicts with keys: track_id, track_name, artists, album_name, track_genre
+    st.session_state.curated_list = []  
 
 def add_to_curated(selected_indices):
     """Add selected DataFrame indices to curated list in session_state"""
@@ -45,7 +41,6 @@ def add_to_curated(selected_indices):
             "album_name": row.get("album_name", ""),
             "track_genre": row.get("track_genre", "")
         }
-        # avoid duplicates based on track_id
         if all(ci["track_id"] != item["track_id"] for ci in st.session_state.curated_list):
             st.session_state.curated_list.append(item)
             added += 1
@@ -54,7 +49,6 @@ def add_to_curated(selected_indices):
 def remove_from_curated(track_id):
     st.session_state.curated_list = [c for c in st.session_state.curated_list if c["track_id"] != track_id]
 
-# ---------- Left: Filters & Song selection ----------
 left_col, right_col = st.columns([2,1])
 
 with left_col:
@@ -62,22 +56,20 @@ with left_col:
         st.markdown("Use filters to narrow songs and add the ones you like to your curated list (used later by recommendation / playlist pages).")
 
     filter_type = st.selectbox("Choose filter type", ["Artist", "Album", "Genre"]) 
-    # Build options dynamically
     if filter_type == "Artist":
-        # Flatten artists_split
         all_artists = [a for sub in df["artists_split"] for a in sub]
         options = sorted(set(all_artists))
     elif filter_type == "Album":
         options = sorted(df["album_name"].dropna().unique().tolist())
-    else:  # Genre
+    else:
         options = sorted(df["track_genre"].dropna().unique().tolist())
 
     selected_filter_values = st.multiselect(f"Select {filter_type}(s)", options, default=None)
 
-    # Apply filtering
+
     if selected_filter_values:
         if filter_type == "Artist":
-            # keep rows where any artist in artists_split is in selected_filter_values
+           
             mask = df["artists_split"].apply(lambda lst: any(a in selected_filter_values for a in lst))
             filtered = df[mask].reset_index(drop=True)
         elif filter_type == "Album":
@@ -88,12 +80,11 @@ with left_col:
         filtered = df.copy().reset_index(drop=True)
 
     st.markdown(f"**Matching songs: {len(filtered):,}** (showing top 200 rows)")
-    # Show sample table but limit to first 200 to avoid UI slowdown
     display_df = filtered[["track_name", "artists", "album_name", "track_genre", "popularity"]].head(200).copy()
-    display_df = display_df.reset_index()  # keep original index (relative to filtered)
+    display_df = display_df.reset_index() 
     display_df.rename(columns={"index": "df_index"}, inplace=True)
 
-    # Let user select multiple songs by index in this displayed table
+   
     st.write("Select rows to add to curated list:")
     selected_rows = st.multiselect(
         "Choose songs from this list (multi-select)",
@@ -102,12 +93,9 @@ with left_col:
     )
 
     if st.button("Add selected songs to curated list"):
-        # Map selected display indices back to filtered dataframe indices and then to original df
         idxs = []
         for sel in selected_rows:
-            # display_df row -> original filtered row index in filtered (since we reset index)
             filtered_row = display_df.loc[sel]
-            # Need to find the original df index (by matching track_name & artists & album)
             cond = (
                 (df["track_name"] == filtered_row["track_name"]) &
                 (df["artists"] == filtered_row["artists"]) &
@@ -122,20 +110,16 @@ with left_col:
     if st.button("Clear filters (show all)"):
         st.experimental_rerun()
 
-# ---------- Right: Curated list display & management ----------
 
 with right_col:
     with card("Your Curated List"):
         if st.session_state.curated_list:
             curated_df = pd.DataFrame(st.session_state.curated_list)
             st.dataframe(curated_df[["track_name", "artists", "album_name", "track_genre"]])
-            # allow removal
             to_remove = st.selectbox("Select a track to remove (by name)", ["--"] + [f"{c['track_name']} — {c['artists']}" for c in st.session_state.curated_list])
             if to_remove != "--":
                 if st.button("Remove selected track"):
-                    # find matching track_id and remove
                     track_name = to_remove.split(" — ")[0]
-                    # remove first matching item
                     found = None
                     for c in st.session_state.curated_list:
                         if c["track_name"] == track_name:
@@ -159,9 +143,7 @@ with right_col:
         quick = df[qmask][["track_name", "artists", "album_name", "track_genre", "popularity"]].head(50)
         st.table(quick)
 
-## Apriori section removed per request
 
-# ---------- Bottom: helpful hints ----------
 st.markdown("---")
 with card("Hints"):
     st.markdown("""
