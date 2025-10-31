@@ -4,7 +4,6 @@ import plotly.express as px
 from utils.data_loader import load_data, preprocess_artists
 from utils.ui import inject_global_css, render_page_header, card, footer
 
-# ---- PAGE CONFIG ----
 st.set_page_config(page_title="Music Recommender", layout="wide")
 inject_global_css()
 render_page_header(
@@ -13,7 +12,6 @@ render_page_header(
     emoji="🎵",
 )
 
-# ---- PROJECT OVERVIEW ----
 with card():
     st.markdown("""
     ### 📘 Project Overview
@@ -26,16 +24,13 @@ with card():
     - Interactive Dashboard: top artists/albums by popularity and feature distributions  
     """)
 
-# ---- LOAD DATA ----
 import os
 from utils.data_loader import load_data
 
-# Automatically use dataset in same folder as main.py
 DATA_PATH = os.path.join(os.path.dirname(__file__), "dataset.csv")
 df = load_data(DATA_PATH)
 df = preprocess_artists(df)
 
-# ---- TOP INSIGHTS (Top 10 only, no expanders) ----
 st.markdown("## 🎧 Dataset Insights — Top 10 Only")
 
 tabs = st.tabs(["Artists", "Songs", "Albums"])
