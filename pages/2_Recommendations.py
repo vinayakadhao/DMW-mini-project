@@ -1,4 +1,3 @@
-# pages/2_Recommendations.py
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -11,11 +10,9 @@ st.set_page_config(page_title="Song Recommendations", layout="wide")
 inject_global_css()
 render_page_header("Personalized Song Recommendations (kNN)", "Find tracks similar to your curated choices.", "🎧")
 
-# ---------- Load dataset ----------
 import os
 from utils.data_loader import load_data
 
-# Get the dataset path relative to the main app folder
 DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dataset.csv")
 
 
@@ -27,7 +24,6 @@ def load_prepared_data(path):
 
 df = load_prepared_data(DATA_PATH)
 
-# ---------- Check curated list ----------
 if "curated_list" not in st.session_state or not st.session_state.curated_list:
     st.warning("⚠️ You don't have any songs in your curated list yet. Go to the 'Preferences' page first.")
     st.stop()
@@ -36,8 +32,6 @@ curated_df = pd.DataFrame(st.session_state.curated_list)
 with card("Your current curated songs"):
     st.table(curated_df[["track_name", "artists", "album_name", "track_genre"]])
 
-# ---------- Prepare feature matrix ----------
-# Select numeric features for similarity
 numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
 if not numeric_cols:
     st.error("No numeric features found in dataset for similarity computation.")
@@ -52,17 +46,14 @@ def get_knn_artifacts(df_sig_cols, df_vals):
     model_local.fit(scaled_local)
     return scaler_local, scaled_local, model_local
 
-# Build a lightweight signature to invalidate cache when data changes materially
 df_signature = (tuple(numeric_cols), float(df[numeric_cols].sum(numeric_only=True).sum()))
 scaler, scaled_features, model = get_knn_artifacts(df_signature, df[numeric_cols].values)
 
-# ---------- kNN Recommendation ----------
 st.markdown("### Configure Recommendation Settings")
 
 num_centroids = st.slider("How many curated songs to use as centroids", min_value=1, max_value=min(10, len(curated_df)), value=min(3, len(curated_df)), step=1)
 num_neighbors = st.slider("Number of recommendations per centroid", min_value=5, max_value=20, value=10, step=1)
 
-# Let user pick which centroid songs to use
 centroid_choices = st.multiselect(
     "Choose centroid songs (used to find similar tracks)",
     options=curated_df["track_name"].tolist(),
@@ -73,7 +64,6 @@ if len(centroid_choices) > num_centroids:
     st.warning("You selected more songs than the chosen centroid count; only the first N will be used.")
     centroid_choices = centroid_choices[:num_centroids]
 
-# model already built via cache
 
 recommendations = []
 
@@ -96,7 +86,6 @@ else:
     st.warning("No matching songs found for your curated list in the dataset.")
     st.stop()
 
-# ---------- Visualization ----------
 st.markdown("### Recommended Songs Overview")
 
 for source_name in centroid_choices:
@@ -122,7 +111,6 @@ for source_name in centroid_choices:
     fig_pop.update_layout(hovermode="x unified", height=420, margin=dict(l=10, r=10, t=50, b=0), xaxis_tickangle=-25)
     st.plotly_chart(fig_pop, use_container_width=True)
 
-# ---------- Export recommendations ----------
 if not rec_df.empty:
     csv = rec_df.to_csv(index=False).encode("utf-8")
     st.download_button(
