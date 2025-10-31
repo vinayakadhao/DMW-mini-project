@@ -1,4 +1,3 @@
-# pages/4_Dashboard.py
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -9,11 +8,9 @@ st.set_page_config(page_title="User Dashboard", layout="wide")
 inject_global_css()
 render_page_header("Music Listening Dashboard", "Insights from your curated selection.", "📊")
 
-# ---------- Load dataset ----------
 import os
 from utils.data_loader import load_data
 
-# Get the dataset path relative to the main app folder
 DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "dataset.csv")
 
 @st.cache_data(show_spinner=False)
@@ -23,38 +20,29 @@ def load_prepared_data(path):
     return df
 
 df = load_prepared_data(DATA_PATH)
-# --- Handle missing popularity column ---
 if "popularity" not in df.columns:
-    # Create a pseudo popularity metric using available audio features
     feature_cols = [c for c in ["danceability", "energy", "valence", "tempo"] if c in df.columns]
     if feature_cols:
         df["popularity"] = df[feature_cols].mean(axis=1)
     else:
-        df["popularity"] = np.random.uniform(40, 80, len(df))  # fallback random values
+        df["popularity"] = np.random.uniform(40, 80, len(df))  
 
-# ---------- Check if user has preferences ----------
 if "curated_list" not in st.session_state or not st.session_state.curated_list:
     st.warning("⚠️ No user preferences found. Please create your curated list on the Preferences page first.")
     st.stop()
 
 curated_df = pd.DataFrame(st.session_state.curated_list)
-# Enrich curated_df with popularity from main df to avoid NA
 if 'popularity' not in curated_df.columns or curated_df['popularity'].isna().all():
-    # match by track_name (case-insensitive); if duplicates, take max popularity
     pop_map = df.groupby(df['track_name'].str.lower())['popularity'].max()
     curated_df['popularity'] = curated_df['track_name'].str.lower().map(pop_map)
-    # fallback if still missing
     if curated_df['popularity'].isna().any():
-        # compute from features where possible by joining on track name
         if {'danceability','energy','valence','tempo'}.issubset(set(df.columns)):
             feat_map = df.set_index(df['track_name'].str.lower())[['danceability','energy','valence','tempo']].mean(axis=1)
             curated_df['popularity'] = curated_df['popularity'].fillna(curated_df['track_name'].str.lower().map(feat_map))
         curated_df['popularity'] = curated_df['popularity'].fillna(curated_df['popularity'].median())
 st.markdown("### 🎧 Your Selected (Curated) Songs")
-# ✅ Safe column display fix
 display_cols = ["track_name", "artists", "album_name", "track_genre"]
 
-# Only add popularity if it exists in dataset
 if "popularity" in curated_df.columns:
     display_cols.append("popularity")
 
@@ -62,15 +50,12 @@ with card("Curated songs"):
     st.dataframe(curated_df[display_cols])
 
 
-# ---------- Derive Analytics ----------
 st.markdown("## 📈 Listening Habit Insights")
 
-# Handle multi-artist cells (split by ;)
 artists_expanded = curated_df.assign(artists=curated_df["artists"].str.split(";"))
 artists_exploded = artists_expanded.explode("artists")
 artists_exploded["artists"] = artists_exploded["artists"].str.strip()
 
-# Top Artists
 top_artists = artists_exploded["artists"].value_counts().head(5)
 fig_artists = px.bar(
     x=top_artists.index,
@@ -83,7 +68,6 @@ fig_artists.update_layout(hovermode="x unified", height=480, margin=dict(l=10, r
 with card("Top Artists You Prefer"):
     st.plotly_chart(fig_artists, use_container_width=True)
 
-# Top Genres
 top_genres = curated_df["track_genre"].value_counts().head(5)
 fig_genres = px.pie(
     names=top_genres.index,
@@ -94,7 +78,6 @@ fig_genres.update_layout(height=480, margin=dict(l=10, r=10, t=50, b=0))
 with card("Favorite Genres Distribution"):
     st.plotly_chart(fig_genres, use_container_width=True)
 
-# Top Albums
 top_albums = curated_df["album_name"].value_counts().head(5)
 fig_albums = px.bar(
     x=top_albums.index,
@@ -107,7 +90,6 @@ fig_albums.update_layout(hovermode="x unified", height=480, margin=dict(l=10, r=
 with card("Most Frequent Albums"):
     st.plotly_chart(fig_albums, use_container_width=True)
 
-# ---------- Popularity Trends ----------
 if "popularity" in curated_df.columns:
     st.markdown("### 🌟 Popularity Trend of Your Selected Songs")
     pop_df = curated_df.sort_values("popularity", ascending=False)
@@ -123,7 +105,6 @@ if "popularity" in curated_df.columns:
     with card("Popularity trend"):
         st.plotly_chart(fig_pop, use_container_width=True)
 
-# ---------- Audio Feature Distribution ----------
 numeric_cols = [col for col in curated_df.select_dtypes(include="number").columns if col not in ["popularity"]]
 if numeric_cols:
     st.markdown("### 🎚️ Audio Feature Comparison")
@@ -139,7 +120,6 @@ if numeric_cols:
     with card("Audio feature distribution"):
         st.plotly_chart(fig_feat, use_container_width=True)
 
-# ---------- Insights Summary ----------
 st.markdown("## 🧠 Key Insights")
 col1, col2 = st.columns(2)
 
