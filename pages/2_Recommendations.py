@@ -55,7 +55,7 @@ num_centroids = st.slider("How many curated songs you want", min_value=1, max_va
 num_neighbors = st.slider("Number of recommendations per song", min_value=5, max_value=20, value=10, step=1)
 
 centroid_choices = st.multiselect(
-    "Choose centroid songs (used to find similar tracks)",
+    "Choose songs (used to find similar tracks)",
     options=curated_df["track_name"].tolist(),
     default=curated_df["track_name"].tolist()[:num_centroids],
     max_selections=num_centroids
