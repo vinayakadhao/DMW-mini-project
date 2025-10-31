@@ -58,7 +58,6 @@ DMW mini project/
 ├── dataset.csv
 ├── utils/
 │   ├── data_loader.py
-│   ├── apriori_artist.py
 │   ├── recommender.py
 │   └── playlist_cluster.py
 └── pages/
