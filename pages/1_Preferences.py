@@ -136,7 +136,7 @@ with right_col:
             st.info("Your curated list is empty. Add songs from the left panel.")
 
     st.markdown("---")
-    st.markdown("### Small utility: Find songs by typing")
+    st.markdown(" ### Find songs by typing")
     q = st.text_input("Quick search (type song title or artist fragment):", "")
     if q:
         qmask = df["track_name"].str.contains(q, case=False, na=False) | df["artists"].str.contains(q, case=False, na=False)
