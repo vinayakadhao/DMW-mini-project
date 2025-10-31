@@ -51,8 +51,8 @@ scaler, scaled_features, model = get_knn_artifacts(df_signature, df[numeric_cols
 
 st.markdown("### Configure Recommendation Settings")
 
-num_centroids = st.slider("How many curated songs to use as centroids", min_value=1, max_value=min(10, len(curated_df)), value=min(3, len(curated_df)), step=1)
-num_neighbors = st.slider("Number of recommendations per centroid", min_value=5, max_value=20, value=10, step=1)
+num_centroids = st.slider("How many curated songs you want", min_value=1, max_value=min(10, len(curated_df)), value=min(3, len(curated_df)), step=1)
+num_neighbors = st.slider("Number of recommendations per song", min_value=5, max_value=20, value=10, step=1)
 
 centroid_choices = st.multiselect(
     "Choose centroid songs (used to find similar tracks)",
