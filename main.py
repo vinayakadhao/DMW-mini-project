@@ -19,7 +19,7 @@ with card():
 
     ### 🚀 Features
     - Pick favorites in Preferences; we’ll use them as centroids for recommendations  
-    - kNN-based recommendations: “Songs like <your song>” with popularity comparisons  
+    - kNN-based recommendations:With popularity comparisons  
     - K-Means playlisting: adjustable number of clusters and playlist size, labeled by centroid song  
     - Interactive Dashboard: top artists/albums by popularity and feature distributions  
     """)
