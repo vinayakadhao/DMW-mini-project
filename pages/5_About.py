@@ -1,4 +1,3 @@
-# pages/5_About.py
 import streamlit as st
 from PIL import Image
 from utils.ui import inject_global_css, render_page_header, card, footer
@@ -6,10 +5,8 @@ from utils.ui import inject_global_css, render_page_header, card, footer
 st.set_page_config(page_title="About Project", layout="centered")
 inject_global_css()
 
-# ---- HEADER ----
 render_page_header("About the Project", "Overview, team, and how it works.", "🎓")
 
-# ---- PROJECT INFO ----
 st.header("🎵 Music Listening Habit Analysis & Personalized Song Recommendation System")
 
 with card():
@@ -24,7 +21,6 @@ with card():
     - Receive intelligent recommendations using **KNN** similarity (per-centroid "Songs like <track>")  
     """)
 
-# ---- TEAM DETAILS ----
 st.markdown("---")
 st.subheader("👨‍💻 Project Developers")
 
@@ -38,7 +34,6 @@ with col2:
 
 st.markdown("---")
 
-# ---- TECHNOLOGIES USED ----
 st.header("🧰 Technologies & Tools Used")
 with card():
     st.markdown("""
@@ -54,7 +49,6 @@ with card():
 
 st.markdown("---")
 
-# ---- PROJECT STRUCTURE ----
 st.header("📂 Project Structure")
 with card():
     st.code("""
@@ -77,7 +71,6 @@ DMW mini project/
 
 st.markdown("---")
 
-# ---- HOW IT WORKS ----
 st.header("⚙️ How the System Works")
 with card():
     st.markdown("""
@@ -90,7 +83,6 @@ with card():
 
 st.markdown("---")
 
-# ---- CREDITS ----
 st.success("""
 Made by **Vinayak Adhao** and **Soham Kolte**
 
